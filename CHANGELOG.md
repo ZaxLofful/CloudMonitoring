@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **BREAKING**: Converted to server-side only mod - clients no longer need to install it
+- Updated info.json with optional dependencies (? base) for server-side operation
+- Removed settings.lua - no client-side configuration needed
+- Removed locale files - no client UI elements
+- Updated README to emphasize server-side only nature
+- Updated ARCHITECTURE documentation to reflect server-side design
+
 ### Added
 - Comprehensive README with installation and usage instructions
 - GitHub Copilot instructions for development guidance
@@ -14,9 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CONTRIBUTING guidelines for community participation
 - Enhanced .gitignore with Factorio-specific patterns
 
-### Changed
-- Improved code structure and documentation
-- Enhanced error handling in metric collection
+### Improved
+- Code structure and documentation
+- Error handling in metric collection
+- Performance for multiplayer (zero client impact)
 
 ## [0.1.0] - Initial Release
 

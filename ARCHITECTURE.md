@@ -2,43 +2,51 @@
 
 ## Overview
 
-CloudMonitoring is a Factorio mod designed to export production and consumption metrics for external monitoring systems. This document describes the technical architecture and design decisions.
+CloudMonitoring is a **server-side only** Factorio mod designed to export production and consumption metrics for external monitoring systems. This document describes the technical architecture and design decisions.
+
+**Key Design Principle**: The mod runs entirely on the server with no client-side components, ensuring players in multiplayer don't need to install it and experience zero performance impact.
 
 ## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      Factorio Game                          │
+│                  Factorio Server Only                       │
 │  ┌────────────────────────────────────────────────────────┐ │
-│  │          CloudMonitoring Mod                           │ │
+│  │          CloudMonitoring Mod (Server-Side)             │ │
 │  │                                                        │ │
-│  │  ┌──────────────┐      ┌──────────────┐             │ │
-│  │  │  Settings    │      │  Control     │             │ │
-│  │  │  (config)    │─────▶│  (runtime)   │             │ │
-│  │  └──────────────┘      └──────┬───────┘             │ │
-│  │                               │                      │ │
-│  │                               ▼                      │ │
-│  │                      ┌─────────────────┐            │ │
-│  │                      │ File Output     │            │ │
-│  │                      │ (script-output) │            │ │
-│  │                      └────────┬────────┘            │ │
-│  └───────────────────────────────┼──────────────────────┘ │
-└────────────────────────────────┼─────────────────────────┘
-                                  │
-                                  ▼
-                          ┌──────────────┐
-                          │  File System │
-                          │  factorio.*  │
-                          └──────┬───────┘
-                                  │
-                                  ▼
-                    ┌─────────────────────────┐
-                    │  External Systems       │
-                    │  - NodeJS Server        │
-                    │  - Web Dashboard        │
-                    │  - Alert Systems        │
-                    │  - Analytics Tools      │
-                    └─────────────────────────┘
+│  │                   ┌──────────────┐                    │ │
+│  │                   │  Control     │                    │ │
+│  │                   │  (runtime)   │                    │ │
+│  │                   └──────┬───────┘                    │ │
+│  │                          │                            │ │
+│  │                          ▼                            │ │
+│  │                 ┌─────────────────┐                  │ │
+│  │                 │ File Output     │                  │ │
+│  │                 │ (script-output) │                  │ │
+│  │                 └────────┬────────┘                  │ │
+│  └──────────────────────────┼──────────────────────────────┘ │
+└─────────────────────────────┼──────────────────────────────┘
+                              │
+         ┌────────────────────┼────────────────────┐
+         │                    │                    │
+         │  No client-side    │                    │
+         │  installation      │                    │
+         │  required!         │                    │
+         └────────────────────┘                    │
+                                                   ▼
+                                          ┌──────────────┐
+                                          │  File System │
+                                          │  factorio.*  │
+                                          └──────┬───────┘
+                                                  │
+                                                  ▼
+                                    ┌─────────────────────────┐
+                                    │  External Systems       │
+                                    │  - NodeJS Server        │
+                                    │  - Web Dashboard        │
+                                    │  - Alert Systems        │
+                                    │  - Analytics Tools      │
+                                    └─────────────────────────┘
 ```
 
 ## File Structure
@@ -46,7 +54,7 @@ CloudMonitoring is a Factorio mod designed to export production and consumption 
 ### Core Mod Files
 
 #### control.lua
-- **Purpose**: Runtime event handling and metric collection
+- **Purpose**: Runtime event handling and metric collection (server-side only)
 - **Key Functions**:
   - `instrumental_output(line)`: Writes metrics to file
   - `script.on_nth_tick(900, ...)`: Periodic metric collection
@@ -60,27 +68,12 @@ CloudMonitoring is a Factorio mod designed to export production and consumption 
 - **Current State**: Empty (no prototypes added)
 - **Future Use**: Could define custom items, recipes, or technologies
 
-#### settings.lua
-- **Purpose**: Mod configuration definitions
-- **Settings**:
-  - `cloudmonitoring-tick-interval`: Collection frequency (60-18000 ticks)
-  - `cloudmonitoring-track-items`: Enable/disable item tracking
-  - `cloudmonitoring-track-fluids`: Enable/disable fluid tracking
-  - `cloudmonitoring-verbose-logging`: Debug logging toggle
-
 #### info.json
 - **Purpose**: Mod metadata for Factorio mod portal
 - **Key Fields**:
   - name, version, title, author
   - Factorio version compatibility
-  - Dependencies
-
-### Localization
-
-#### locale/en/locale.cfg
-- **Purpose**: English translations for mod UI
-- **Contents**: Setting names and descriptions
-- **Format**: INI-style configuration
+  - Dependencies (marked as optional with "?" to enable server-side only operation)
 
 ### Documentation
 
@@ -130,23 +123,23 @@ CloudMonitoring is a Factorio mod designed to export production and consumption 
 
 ### Metric Collection Flow
 
-1. **Trigger**: Every 900 ticks (15 seconds at 60 UPS)
+1. **Trigger**: Every 900 ticks (15 seconds at 60 UPS) - server-side only
 2. **Iteration**: Loop through all game forces
 3. **Collection**: 
    - Item production statistics (input/output)
    - Fluid production statistics (input/output)
 4. **Formatting**: `metric_type.item_name amount`
-5. **Output**: Write to `factorio.<tick>` file
+5. **Output**: Write to `factorio.<tick>` file on server
 6. **Error Handling**: Log errors to separate file
 
-### Configuration Flow
-
-1. **Load Time**: Settings defined in settings.lua
-2. **Runtime**: User can modify in mod settings menu
-3. **Application**: control.lua reads settings (future implementation)
-4. **Persistence**: Settings saved per save file
-
 ## Performance Considerations
+
+### Server-Side Only Benefits
+
+1. **Zero Client Impact**: No code runs on client machines
+2. **No Download Required**: Players don't download mod files
+3. **Centralized Processing**: All computation happens on the server
+4. **Scalable**: Performance impact doesn't multiply with player count
 
 ### Optimization Strategies
 
@@ -157,10 +150,11 @@ CloudMonitoring is a Factorio mod designed to export production and consumption 
 
 ### Performance Impact
 
-- **CPU**: Minimal (< 0.1% on large factories)
-- **Memory**: Negligible (no persistent data structures)
-- **Disk I/O**: Low (one write per 15 seconds)
-- **Network**: None (purely local)
+- **Server CPU**: Minimal (< 0.1% on large factories)
+- **Server Memory**: Negligible (no persistent data structures)
+- **Server Disk I/O**: Low (one write per 15 seconds)
+- **Client Impact**: **Zero** - mod doesn't run on clients
+- **Network**: None (purely local file operations)
 
 ## Error Handling Strategy
 

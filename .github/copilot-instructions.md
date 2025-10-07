@@ -1,7 +1,9 @@
 # GitHub Copilot Instructions for CloudMonitoring
 
 ## Project Overview
-CloudMonitoring is a Factorio mod that enables real-time monitoring of factory production and consumption metrics from external systems. The mod exports game data to files that can be consumed by a web GUI or other monitoring systems.
+CloudMonitoring is a **server-side only** Factorio mod that enables real-time monitoring of factory production and consumption metrics from external systems. The mod exports game data to files that can be consumed by a web GUI or other monitoring systems.
+
+**Critical Design Constraint**: This mod runs entirely on the server. Clients in multiplayer do not need to install it. Avoid adding any client-side features, UI elements, or settings.
 
 ## Code Style and Conventions
 
@@ -13,11 +15,12 @@ CloudMonitoring is a Factorio mod that enables real-time monitoring of factory p
 - Keep functions focused and single-purpose
 
 ### File Organization
-- `control.lua`: Runtime game event handlers and logic
+- `control.lua`: Runtime game event handlers and logic (server-side only)
 - `data.lua`: Data stage modifications (prototypes, recipes, etc.)
-- `settings.lua`: Mod settings and configuration options
-- `locale/`: Translation files for internationalization
-- `graphics/`: Image assets for the mod
+- `info.json`: Mod metadata with optional dependencies for server-side operation
+- **No settings.lua**: Server-side mods don't need client settings
+- **No locale/**: No UI elements means no translations needed
+- `graphics/`: Image assets for the mod (optional, for mod portal only)
 
 ## Key Factorio API Patterns
 
@@ -45,27 +48,29 @@ end)
 ## Feature Guidance
 
 ### When Adding Metrics
-1. Always add a setting to enable/disable the metric
-2. Include appropriate tick interval configuration
+1. Keep it server-side - no client UI or settings
+2. Include appropriate tick interval in code (hardcoded or read from save data)
 3. Format output consistently (metric_name.item_name value)
 4. Document the metric format in README
 
-### When Adding Settings
-1. Define in `settings.lua`
-2. Use appropriate setting type (bool, int, double, string)
-3. Provide sensible default values
-4. Add locale entries for setting names and descriptions
+### Server-Side Only Constraints
+1. **No settings.lua**: All configuration must be in code or via remote interfaces
+2. **No locale files**: No UI means no translations needed
+3. **No client-side code**: Everything runs in control.lua on the server
+4. **Optional dependencies**: Use `"? base"` in info.json to enable server-side only operation
 
 ### Performance Considerations
 - Avoid iterating over all entities every tick
 - Use `script.on_nth_tick()` for periodic operations
 - Cache frequently accessed data
 - Minimize file I/O operations
+- Remember: only server performance matters, clients are unaffected
 
 ## Testing Guidelines
-- Test with different game stages (early game, late game)
-- Verify multiplayer compatibility
-- Check performance impact on large factories
+- Test in single-player (acts as server)
+- **Critical**: Test multiplayer with clients that don't have the mod installed
+- Verify clients can join without needing to download the mod
+- Check performance impact on large factories (server-side only)
 - Validate file output format
 
 ## Common Pitfalls
@@ -73,6 +78,7 @@ end)
 - Remember that `game.tick` is measured in ticks (60 ticks = 1 second)
 - File paths in `game.write_file()` are relative to script-output directory
 - Production statistics are cumulative, calculate deltas if needed
+- **Don't add settings.lua or locale files** - this breaks server-side only operation
 
 ## Documentation
 - Update README.md when adding features

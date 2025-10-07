@@ -6,8 +6,8 @@
   "author": "Zax Lofful",
   "contact": "https://github.com/ZaxLofful/CloudMonitoring",
   "homepage": "https://github.com/ZaxLofful/CloudMonitoring",
-  "description": "Export real-time production and consumption metrics for external monitoring systems. Track items and fluids, integrate with cloud services, and build custom dashboards.",
+  "description": "Server-side only mod that exports real-time production and consumption metrics for external monitoring systems. Does not need to be installed on clients in multiplayer.",
   "dependencies": [
-    "base >= 0.17.29"
+    "? base >= 0.17.29"
   ]
 }

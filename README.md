@@ -1,21 +1,31 @@
 # CloudMonitoring
 
-A Factorio mod that enables real-time monitoring of your factory from external systems. Export production metrics, track resource consumption, and integrate with cloud-based monitoring solutions.
+A **server-side only** Factorio mod that enables real-time monitoring of your factory from external systems. Export production metrics, track resource consumption, and integrate with cloud-based monitoring solutions.
+
+**Important**: This mod only needs to be installed on the server in multiplayer scenarios. Clients do not need to install it, ensuring optimal performance and no client-side overhead.
 
 ## Features
 
+- **Server-Side Only**: No client installation required in multiplayer
 - **Real-time Metrics Export**: Automatically exports production and consumption data every 15 seconds
 - **Multiple Metric Types**: Tracks both item and fluid production/consumption statistics
 - **File-based Output**: Writes metrics to timestamped files for easy integration
 - **Multi-force Support**: Monitors all forces in the game simultaneously
-- **Low Performance Impact**: Optimized tick-based data collection
+- **Zero Client Impact**: No performance impact on players, all processing happens server-side
+- **Low Performance Impact**: Optimized tick-based data collection on the server
 
 ## Installation
+
+### Single Player or Server Owner
 
 1. Download the latest release
 2. Extract to your Factorio mods directory: `%appdata%/Factorio/mods` (Windows) or `~/.factorio/mods` (Linux/Mac)
 3. Launch Factorio and enable the mod
 4. Start or load a game
+
+### Multiplayer Clients
+
+**No installation needed!** This mod runs entirely on the server. Players connecting to a server with CloudMonitoring do not need to install anything.
 
 ## Usage
 

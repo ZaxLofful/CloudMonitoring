@@ -39,3 +39,30 @@ luac.out
 *.x86_64
 *.hex
 
+# Factorio-specific
+*.dat
+script-output/
+temp/
+*.tmp
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+dist/
+build/
+*.mod
+
+# Dependency directories
+node_modules/
+vendor/
+
+# Log files
+*.log
+debug.log
+
